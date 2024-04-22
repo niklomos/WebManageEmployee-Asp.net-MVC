@@ -6,15 +6,33 @@ namespace WebManageEmployee.Controllers
 
     public class LogoutController : Controller
     {
+        private readonly ILogger<LogoutController> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        public LogoutController(ILogger<LogoutController> logger, IConfiguration configuration, IHttpContextAccessor contextAccessor)
+        {
+            _logger = logger;
+            _configuration = configuration;
+            _contextAccessor = contextAccessor;
+        }
+        // Method สำหรับ logout
         public IActionResult Logout()
         {
-            // Expire the cookie by setting its expiration date to a past date
-            Response.Cookies.Delete("LoggedInUsername_Hr");
-            Response.Cookies.Delete("LoggedInFullName_Hr");
-            Response.Cookies.Delete("LoggedInEmp_Id_Hr");
+            try
+            {
+                // ลบ session ทั้งหมด
+                _contextAccessor.HttpContext.Session.Clear();
 
-            // Redirect to the login page or any other page as needed
-            return RedirectToAction("Login", "Login");
+                // Redirect กลับไปยังหน้า login
+                return RedirectToAction("Login", "Login");
+            }
+            catch (Exception ex)
+            {
+                // กรณีเกิดข้อผิดพลาด
+                ViewBag.Error = "Error : " + ex.Message;
+                return View("Error"); // สามารถเลือกที่จะส่งไปยังหน้า error หรือหน้าอื่นที่เหมาะสม
+            }
         }
 
     }

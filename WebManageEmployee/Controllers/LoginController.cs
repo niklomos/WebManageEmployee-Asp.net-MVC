@@ -16,14 +16,20 @@ namespace WebManageEmployee.Controllers
 
         private readonly ILogger<LoginController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public LoginController(IConfiguration configuration, ILogger<LoginController> logger)
+        public LoginController(ILogger<LoginController> logger, IConfiguration configuration, IHttpContextAccessor contextAccessor)
         {
             _logger = logger;
             _configuration = configuration;
+            _contextAccessor = contextAccessor;
         }
         public IActionResult Login()
         {
+            if (TempData.ContainsKey("SessionError"))
+            {
+                ViewData["SessionError"] = TempData["SessionError"].ToString();
+            }
             return View();
         }
 
@@ -56,14 +62,19 @@ namespace WebManageEmployee.Controllers
                     if (reader.Read())
                     {
 
+                        var session = _contextAccessor.HttpContext.Session;
+                        session.SetString("LoggedInFullName_Hr", reader["emp_name"].ToString());
+                        session.SetString("LoggedInUsername_Hr", reader["username"].ToString());
 
-                        HttpContext.Response.Cookies.Append("LoggedInUsername_Hr", login.Username);
-                        HttpContext.Response.Cookies.Append("LoggedInFullName_Hr", reader["emp_name"].ToString());
+                        //HttpContext.Response.Cookies.Append("LoggedInUsername_Hr", login.Username);
+                        //HttpContext.Response.Cookies.Append("LoggedInFullName_Hr", reader["emp_name"].ToString());
 
 
                         if (login.EmpId != null)
                         {
-                            HttpContext.Response.Cookies.Append("LoggedInEmp_Id_Hr", Convert.ToInt32(reader["emp_id"]).ToString());
+                            session.SetString("LoggedInEmp_Id_Hr", reader["emp_id"].ToString());
+
+                            //HttpContext.Response.Cookies.Append("LoggedInEmp_Id_Hr", Convert.ToInt32(reader["emp_id"]).ToString());
 
                             return RedirectToAction("Summary", "Home");
                         }

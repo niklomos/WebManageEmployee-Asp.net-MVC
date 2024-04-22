@@ -4,11 +4,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
-<div class="d-none">
+@* <div class="d-none">
     @Context.Request.Cookies.TryGetValue("LoggedInUsername_Hr", out string? LoggedInUsername_Hr);
     @Context.Request.Cookies.TryGetValue("LoggedInEmp_Id_Hr", out string? LoggedInEmp_Id_Hr);
 
-</div>
+</div> *@
 <div class="container pt-3">
     <form asp-controller="Home" asp-action="InsertEmployeeToDB" method="POST">
         <div class="card ">
@@ -126,11 +126,11 @@
 
                 <div class="mb-3 d-none">
                     <label for="create_by" class="form-label">Create By</label>
-                    <input type="text" class="form-control" id="create_by" name="CreateBy" value="@LoggedInEmp_Id_Hr">
+                    <input type="text" class="form-control" id="create_by" name="CreateBy" value="@Context.Session.GetString("LoggedInEmp_Id_Hr")">
                 </div>
                 <div class="mb-3  d-none">
                     <label for="create_by" class="form-label">Last_Upadta_By</label>
-                    <input type="text" class="form-control" id="LastUpdateBy" name="LastUpdateBy" value="@LoggedInEmp_Id_Hr">
+                    <input type="text" class="form-control" id="LastUpdateBy" name="LastUpdateBy" value="@Context.Session.GetString("LoggedInEmp_Id_Hr")">
                 </div>
 
 

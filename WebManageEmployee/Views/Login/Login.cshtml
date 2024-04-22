@@ -27,7 +27,13 @@
 <body class="hold-transition login-page bg-dark">
    
 
-   
+    <!--Alert TempData From HomeController-->
+    @if (TempData["SessionError"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["SessionError"]
+        </div>
+    }
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-warning text-dark " style="margin-top:auto;">

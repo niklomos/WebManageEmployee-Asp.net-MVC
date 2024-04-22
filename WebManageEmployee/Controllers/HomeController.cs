@@ -15,17 +15,24 @@ namespace WebManageEmployee.Controllers
 {
 
 
+    [CheckSessionFilter]
+
     public class HomeController : Controller
     {
+
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor contextAccessor)
         {
             _logger = logger;
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
+            _contextAccessor = contextAccessor;
+
         }
 
 
@@ -41,45 +48,49 @@ namespace WebManageEmployee.Controllers
         {
             return View();
         }
+
+
         public IActionResult Summary(string searchQuery, int page = 1)
         {
 
-            try
-            {
-
-                int totalItems = GetTotalItemCount(searchQuery); // ดึงจำนวนรายการทั้งหมดจากฐานข้อมูลหรือที่เก็บข้อมูล
-                int itemsPerPage = 10; // จำนวนรายการต่อหน้า
-                int pageCount = (int)Math.Ceiling((double)totalItems / itemsPerPage); // คำนวณจำนวนหน้าทั้งหมด
-
-                // ตรวจสอบว่าหน้าปัจจุบันไม่เกินจำนวนหน้าทั้งหมด ถ้าเกินให้กำหนดหน้าปัจจุบันเป็นหน้าสุดท้าย
-                if (page > pageCount)
+            
+                try
                 {
-                    page = pageCount;
+
+                    int totalItems = GetTotalItemCount(searchQuery); // ดึงจำนวนรายการทั้งหมดจากฐานข้อมูลหรือที่เก็บข้อมูล
+                    int itemsPerPage = 10; // จำนวนรายการต่อหน้า
+                    int pageCount = (int)Math.Ceiling((double)totalItems / itemsPerPage); // คำนวณจำนวนหน้าทั้งหมด
+
+                    // ตรวจสอบว่าหน้าปัจจุบันไม่เกินจำนวนหน้าทั้งหมด ถ้าเกินให้กำหนดหน้าปัจจุบันเป็นหน้าสุดท้าย
+                    if (page > pageCount)
+                    {
+                        page = pageCount;
+                    }
+
+                    // ใช้ค่า LoggedInEmpId และหน้าปัจจุบันในการดึงข้อมูลจากฐานข้อมูล
+                    var items = GetEmpFromDB(searchQuery, page, itemsPerPage);
+
+                    ViewBag.SearchQuery = System.Web.HttpUtility.HtmlDecode(searchQuery);
+
+                    // ส่งข้อมูลในหน้าปัจจุบันและจำนวนหน้าทั้งหมดไปยัง View
+                    var viewModel = new EmployeeCount
+                    {
+                        Employees = items,
+                        PageCount = pageCount,
+                        CurrentPage = page,
+                        ItemsPerPage = itemsPerPage,
+                        TotalItems = totalItems
+                    };
+
+                    return View(viewModel);
                 }
-
-                // ใช้ค่า LoggedInEmpId และหน้าปัจจุบันในการดึงข้อมูลจากฐานข้อมูล
-                var items = GetEmpFromDB(searchQuery, page, itemsPerPage);
-
-                ViewBag.SearchQuery =  System.Web.HttpUtility.HtmlDecode(searchQuery);
-
-                // ส่งข้อมูลในหน้าปัจจุบันและจำนวนหน้าทั้งหมดไปยัง View
-                var viewModel = new EmployeeCount
+                catch (Exception ex)
                 {
-                    Employees = items,
-                    PageCount = pageCount,
-                    CurrentPage = page,
-                    ItemsPerPage = itemsPerPage,
-                    TotalItems = totalItems
-                };
-
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                // จับ error และเพิ่มข้อความ error ลงใน ModelState
-                ModelState.AddModelError("", "เกิดข้อผิดพลาดในการดึงข้อมูล: " + ex.Message);
-                return View(); // หรือ return RedirectToAction("ActionName");
-            }
+                    // จับ error และเพิ่มข้อความ error ลงใน ModelState
+                    ModelState.AddModelError("", "เกิดข้อผิดพลาดในการดึงข้อมูล: " + ex.Message);
+                    return View(); // หรือ return RedirectToAction("ActionName");
+                }
+            
         }
 
 
@@ -184,7 +195,7 @@ namespace WebManageEmployee.Controllers
                 return View(); // หรือ return RedirectToAction("ActionName");
             }
         }
-        public IActionResult UpdateDepartment(string searchquery,int id, int page = 1)
+        public IActionResult UpdateDepartment(string searchquery, int id, int page = 1)
         {
             ViewBag.SearchQuery = System.Web.HttpUtility.UrlEncode(searchquery);
 
@@ -193,7 +204,7 @@ namespace WebManageEmployee.Controllers
 
             return View(model);
         }
-        public IActionResult UpdatePosition(string searchquery , int id,int page = 1)
+        public IActionResult UpdatePosition(string searchquery, int id, int page = 1)
         {
             var position = GetPositionByIdFromDB(id);
             var departments = GetDepartmentFromDatabase();
@@ -276,7 +287,7 @@ namespace WebManageEmployee.Controllers
                     "AND (e.emp_number LIKE @SearchQuery OR e.emp_name LIKE @SearchQuery  OR  e.email LIKE @SearchQuery  OR  p.pos_name LIKE @SearchQuery ) " +
                     "ORDER BY e.emp_id DESC " +
                     $" LIMIT {itemsPerPage}  OFFSET {offset} ";
-                  
+
                 MySqlCommand command = new MySqlCommand(sqlSelect, connection);
                 command.Parameters.AddWithValue("@SearchQuery", "%" + searchQuery + "%");
                 MySqlDataReader reader = command.ExecuteReader();

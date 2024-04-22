@@ -1,9 +1,9 @@
 ﻿@model PositionModel
-<div class="d-none">
+@* <div class="d-none">
     @Context.Request.Cookies.TryGetValue("LoggedInUsername_Hr", out string? LoggedInUsername_Hr);
     @Context.Request.Cookies.TryGetValue("LoggedInEmp_Id_Hr", out string? LoggedInEmp_Id_Hr);
 
-</div>
+</div> *@
 <div class="container pt-3">
     <form asp-controller="Home" asp-action="UpdateProEmpInDB" method="POST">
         <div class="card">
@@ -142,7 +142,7 @@
 
                 <div class="mb-3 d-none">
                     <label for="phone_number" class="form-label">Last_Update_By</label>
-                    <input type="tel" class="form-control" id="LastUpdateBy" name="LastUpdateBy" value="@LoggedInEmp_Id_Hr" readonly>
+                    <input type="tel" class="form-control" id="LastUpdateBy" name="LastUpdateBy" value="@Context.Session.GetString("LoggedInEmp_Id_Hr")" readonly>
                 </div>
                 <button type="submit" class="btn btn-primary">Update</button>
             </div>

@@ -115,12 +115,12 @@
     <div class="wrapper">
 
         <header>
-            <div class="d-none">
+           @*  <div class="d-none">
                 @Context.Request.Cookies.TryGetValue("LoggedInUsername_Hr", out string? LoggedInUsername_Hr);
                 @Context.Request.Cookies.TryGetValue("LoggedInFullName_Hr", out string? LoggedInFullName_Hr);
                 @Context.Request.Cookies.TryGetValue("LoggedInEmp_Id_Hr", out string? LoggedInEmp_Id_Hr);
 
-            </div>
+            </div> *@
 
 
             <!-- Navbar -->
@@ -132,7 +132,7 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto me-2">
-                    <a asp-controller="Logout" asp-action="Logout" onclick="logout()" class="logout"  >
+                    <a asp-controller="Logout" asp-action="Logout" class="logout"  >
                         <i class=" fa-solid fa-right-from-bracket "></i>
                         Logout
                     </a>
@@ -158,10 +158,10 @@
                     </div>
                     <div class="info ">
                         <a href="#" class="d-block  text-warning text-decoration-none">
-                            @if (!string.IsNullOrEmpty(LoggedInUsername_Hr))
+                            @if (!string.IsNullOrEmpty(Context.Session.GetString("LoggedInUsername_Hr")))
                             {
                                 <span class="hidden-xs">
-                                    @LoggedInUsername_Hr
+                                    @Context.Session.GetString("LoggedInUsername_Hr")
                                 </span>
                               @*   <span class="hidden-xs">
                                     @LoggedInFullName_Hr
@@ -195,10 +195,10 @@
                                     </a>
                                 </li>
                        
-                        @if(@LoggedInEmp_Id_Hr != "0")
+                        @if (Context.Session.GetString("LoggedInEmp_Id_Hr") != "0")
                         {
                             <li class="nav-item">
-                                <a asp-controller="Home" asp-action="Profile" asp-route-id="@LoggedInEmp_Id_Hr" class="nav-link  @ProPage()">
+                                <a asp-controller="Home" asp-action="Profile" asp-route-id="@Context.Session.GetString("LoggedInEmp_Id_Hr")" class="nav-link  @ProPage()">
                                     <i class="fa-solid fa-user nav-icon  ml-1"></i>
                                     <p> Profile </p>
                                 </a>
@@ -224,16 +224,7 @@
         @RenderBody()
        
 
-        <script>
-            function logout() {
-                // ทำลายคุกกี้โดยกำหนดวันหมดอายุให้มีค่าน้อยกว่าวันปัจจุบัน
-                document.cookie = "LoggedInUsername_login=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                document.cookie = "LoggedInLog_Id_login=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-                // หรือหากคุณต้องการให้กลับไปยังหน้า login หลังจากทำการล็อกเอาท์
-                window.location.href = "/Login/Login"; // กำหนด URL ของหน้า Login ที่คุณต้องการให้กลับไป
-            }
-        </script>
+      
 
 
     </div>
