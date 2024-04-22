@@ -1,0 +1,424 @@
+﻿@model PositionModel
+<div class="d-none">
+    @Context.Request.Cookies.TryGetValue("LoggedInUsername_Hr", out string? LoggedInUsername_Hr);
+    @Context.Request.Cookies.TryGetValue("LoggedInEmp_Id_Hr", out string? LoggedInEmp_Id_Hr);
+
+</div>
+<div class="container pt-3">
+    <form asp-controller="Home" asp-action="UpdateProEmpInDB" method="POST">
+        <div class="card">
+            <div class="card-header " style="background-color:#2C3E50 ;">
+                <h2 class="text-center  text-light">Profile</h2>
+                    <div class="d-flex justify-content-end">
+                        <div class="text-light">
+                            <p> Create by : <b class="text-warning">@Model.Employee.CreateByUsername</b> / @Model.Employee.CreateDate.ToString("yyyy-MM-dd HH:mm:ss") </p>
+                            <p>Update by : <b class="text-warning">@Model.Employee.LastByUsername</b> / @Model.Employee.LastUpdateDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                        </div>
+                    </div>
+            </div>
+
+
+            <div class="card-body ">
+                <div class="mb-3 d-none">
+                    <input type="text" class="form-control" id="EmpId" name="EmpId" value="@Model.Employee.EmpId">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="emp_name" class="form-label">Employee Name<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="emp_name" name="EmpName" value="@Model.Employee.EmpName">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">Date of Birth<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="date_of_birth" name="DateOfBirth" value="@Model.Employee.DateOfBirth.ToString("yyyy-MM-dd")" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <div class="form-group mb-3">
+                            <label for="Gender" class="form-label">Gender<span class="text-danger">*</span></label>
+                            <select class=" form-select " id="Gender" name="Gender">
+                                <option value="">Select a gender...</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email<span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="Email" value="@Model.Employee.Email">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number<span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone_number" name="PhoneNumber" value="@Model.Employee.PhoneNumber">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="start_date" name="StartDate" value="@Model.Employee.StartDate.ToString("yyyy-MM-dd")" readonly>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4 ">
+                        <div class="form-group mb-3">
+                            <label for="ProId" class="form-label">Province<span class="text-danger">*</span></label>
+                            <select class=" form-select select2bs4" id="ProId" name="ProId" style="width: 100%;">
+                                <option value="0">Select a province...</option>
+                                @foreach (var item in Model.Provinces)
+                                {
+                                    <option value="@item.ProId">@item.PName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 ">
+                        <div class="form-group mb-3">
+                            <label for="AmpId" class="form-label">Amphure<span class="text-danger">*</span></label>
+                            <select class="form-control select2bs4" id="AmpId" name="AmpId" style="width: 100%;">
+                                <option value="0">Select an amphure...</option>
+                                @foreach (var item in Model.Amphures)
+                                {
+                                    <option value="@item.AmpId">@item.AName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 ">
+                        <div class=" form-group mb-3">
+                            <label for="DisId" class="form-label">District</label>
+                            <select class="form-control select2bs4" id="DisId" name="DisId" style="width: 100%;">
+                                <option value="0">Select an district...</option>
+                                @foreach (var item in Model.Districts)
+                                {
+                                    <option value="@item.DisId">@item.DName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address<span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="address" name="Address" rows="3">@Model.Employee.Address</textarea>
+                </div>
+                <div class="mb-3  ">
+                    <label for="pos_id" class="form-label">Position<span class="text-danger">*</span></label>
+                    <select class="form-control select2bs4" id="pos_id" name="PosId" style="width:100%" required>
+
+
+                        @foreach (var item in Model.Positions)
+                        {
+
+                            <option id="" value="@item.PosId">@item.PosName</option>
+
+                        }
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="Username" class="form-label">Username<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="Username" name="Username" value="@Model.Logins.Username" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">Password<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="Password" name="Password" value="@Model.Logins.Password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 d-none">
+                    <label for="phone_number" class="form-label">Last_Update_By</label>
+                    <input type="tel" class="form-control" id="LastUpdateBy" name="LastUpdateBy" value="@LoggedInEmp_Id_Hr" readonly>
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
+
+
+
+<!--Script-->
+@* Star Check PosIid in <Select> *@
+<script>
+    // หา element select โดยใช้ id
+    var selectElement = document.getElementById('pos_id');
+    // ค่า pos_id ของ Employee
+    var empPosId = @Model.Employee.PosId;
+
+    // วนลูปผ่านตัวเลือกทั้งหมดใน select
+    for (var i = 0; i < selectElement.options.length; i++) {
+        // ตรวจสอบว่า pos_id ของตัวเลือกตรงกับ pos_id ของ Employee หรือไม่
+        if (selectElement.options[i].value == empPosId) {
+            // กำหนด selected attribute ให้กับตัวเลือกที่ตรงกัน
+            selectElement.options[i].selected = true;
+            // หยุดการวนลูปหากเจอการตรงค่า
+            break;
+        }
+    }
+</script>
+@* End Check PosIid in <Select> *@
+
+
+@* Start Check Address in <Select> *@
+<script>
+    // หา element select โดยใช้ id
+    var selectElementProId = document.getElementById('ProId');
+    // ค่า pos_id ของ Employee
+    var empProId = @Model.Employee.ProId;
+
+    // วนลูปผ่านตัวเลือกทั้งหมดใน select
+    for (var i = 0; i < selectElementProId.options.length; i++) {
+        // ตรวจสอบว่า pos_id ของตัวเลือกตรงกับ pos_id ของ Employee หรือไม่
+        if (selectElementProId.options[i].value == empProId) {
+            // กำหนด selected attribute ให้กับตัวเลือกที่ตรงกัน
+            selectElementProId.options[i].selected = true;
+            // หยุดการวนลูปหากเจอการตรงค่า
+            break;
+        }
+    }
+    var selectElementAmpId = document.getElementById('AmpId');
+    // ค่า pos_id ของ Employee
+    var empAmpId = @Model.Employee.AmpId;
+
+    // วนลูปผ่านตัวเลือกทั้งหมดใน select
+    for (var i = 0; i < selectElementAmpId.options.length; i++) {
+        // ตรวจสอบว่า pos_id ของตัวเลือกตรงกับ pos_id ของ Employee หรือไม่
+        if (selectElementAmpId.options[i].value == empAmpId) {
+            // กำหนด selected attribute ให้กับตัวเลือกที่ตรงกัน
+            selectElementAmpId.options[i].selected = true;
+            // หยุดการวนลูปหากเจอการตรงค่า
+            break;
+        }
+    }
+    var selectElementDisId = document.getElementById('DisId');
+    // ค่า pos_id ของ Employee
+    var empDisId = @Model.Employee.DisId;
+
+    // วนลูปผ่านตัวเลือกทั้งหมดใน select
+    for (var i = 0; i < selectElementDisId.options.length; i++) {
+        // ตรวจสอบว่า pos_id ของตัวเลือกตรงกับ pos_id ของ Employee หรือไม่
+        if (selectElementDisId.options[i].value == empDisId) {
+            // กำหนด selected attribute ให้กับตัวเลือกที่ตรงกัน
+            selectElementDisId.options[i].selected = true;
+            // หยุดการวนลูปหากเจอการตรงค่า
+            break;
+        }
+    }
+</script>
+@* End Check Address in <Select> *@
+
+
+@* Start check active before updat  &&  ajax get message from method  *@
+<script>
+    $(document).ready(function () {
+        // ตัวแปรเพื่อตรวจสอบว่ามีการแก้ไขข้อมูลหรือไม่
+        var isModified = false;
+
+        // ตัวฟังก์ชันสำหรับตรวจจับการเปลี่ยนแปลงใน input fields
+        $('form :input').on('input', function () {
+            isModified = true;
+        });
+
+        // เมื่อฟอร์มถูกส่ง
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+
+            // ตรวจสอบว่ามีการแก้ไขข้อมูลหรือไม่
+            if (!isModified) {
+                // ถ้าไม่มีการแก้ไข แสดงออลเลิร์ท
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'No changes detected. Please make some changes before updating.'
+                });
+                return false; // ไม่อนุญาตให้ฟอร์มถูกส่ง
+            } else {
+                // ตรวจสอบความถูกต้องของฟอร์ม
+                if (validateForm()) {
+                    // ส่งข้อมูลฟอร์มโดยใช้ AJAX
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: form.attr('method'),
+                        data: form.serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '@Url.Action("Summary", "Home")';
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An error occurred while processing your request.'
+                            });
+                        }
+                    });
+                }
+                return false; // ไม่อนุญาตให้ฟอร์มถูกส่ง
+            }
+        });
+
+        function validateForm() {
+            // Check if any required fields are empty
+            var EmpId = document.getElementById('emp_name').value;
+            var DateOfBirth = document.getElementById('date_of_birth').value;
+            var Email = document.getElementById('email').value;
+            var PhoneNumber = document.getElementById('phone_number').value;
+            var StartDate = document.getElementById('start_date').value;
+            var ProId = document.getElementById('ProId').value;
+            var AmpId = document.getElementById('AmpId').value;
+            var Address = document.getElementById('address').value;
+            var PosId = document.getElementById('pos_id').value;
+            var Gender = document.getElementById('Gender').value;
+
+            // Perform validation
+            if (EmpId === '' || DateOfBirth === '' || Email === '' || PhoneNumber === ''
+                || StartDate === '' || ProId === '' || AmpId === '' || Address === '' || PosId === '' || Gender === '') {
+                // Show SweetAlert for incomplete form
+                Swal.fire({
+                    title: 'Please fill in all required fields.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                // Return false to indicate validation failure
+                return false;
+            }
+            // Return true to indicate validation success
+            return true;
+        }
+    });
+
+</script>
+@* End  check active before updat  &&  ajax get message from method  *@
+
+
+<script>
+    $(document).ready(function () {
+        $('#ProId').on('change', function () {
+            var proId = $(this).val();
+            if (proId) {
+                // Ajax request to get amphures
+                $.ajax({
+                    url: '@Url.Action("GetAmphureFromDatabaseByAjax", "Home")',
+                    type: 'POST',
+                    data: { proId: proId },
+                    success: function (data) {
+                        // Replace the content of Amphure dropdown
+                        $('#AmpId').html(data);
+                        $('#AmpId').prop('disabled', false);
+                        $('#DisId').html('<option value="0">Select an district...</option>');
+
+
+                    }
+                });
+            } else {
+                // If proId is empty, disable the Amphure dropdown
+                $('#AmpId').prop('disabled', true);
+                // Optionally, you may clear the options of the Amphure dropdown
+                $('#AmpId').html('<option value="0">Select an amphure...</option>');
+            }
+        });
+
+        // Add similar Ajax request for districts if needed
+    });
+
+
+
+    $(document).ready(function () {
+        $('#AmpId').on('change', function () {
+            var ampId = $(this).val();
+            if (ampId) {
+                // Ajax request to get amphures
+                $.ajax({
+                    url: '@Url.Action("GetDistrictFromDatabaseByAjax", "Home")',
+                    type: 'POST',
+                    data: { ampId: ampId },
+                    success: function (data) {
+                        // Replace the content of Amphure dropdown
+                        $('#DisId').html(data);
+                        $('#DisId').prop('disabled', false);
+
+                    }
+                });
+            } else {
+                // If proId is empty, disable the Amphure dropdown
+                $('#DisId').prop('disabled', true);
+                // Optionally, you may clear the options of the Amphure dropdown
+                $('#DisId').html('<option value="0">Select an amphure...</option>');
+            }
+        });
+
+        // Add similar Ajax request for districts if needed
+    });
+
+</script>
+
+
+<script>
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+
+    })
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        var genderValue = "@Model.Employee.Gender"; // รับค่าเพศจาก Model
+
+        if (genderValue === "1") {
+            // ถ้าค่าเพศเป็น 1 (Male) ให้เลือก Male
+            $("#Gender").val("1").change();
+        } else if (genderValue === "2") {
+            // ถ้าค่าเพศเป็น 2 (Female) ให้เลือก Female
+            $("#Gender").val("2").change();
+        }
+        // ถ้าไม่มีค่าหรือค่าอื่นๆ ไม่ต้องทำอะไรเลย เพราะ option แรกเป็นค่าว่าง
+    });
+</script>
+
+
+
+
+
+
+
+
+

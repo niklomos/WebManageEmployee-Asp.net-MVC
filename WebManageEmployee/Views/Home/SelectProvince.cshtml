@@ -1,0 +1,8 @@
+﻿@model IEnumerable<Province>
+
+<option value="">----Province----</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.ProId">@item.PName</option>
+}

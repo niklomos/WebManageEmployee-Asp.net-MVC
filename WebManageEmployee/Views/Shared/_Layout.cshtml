@@ -1,0 +1,280 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WebManageEmployee</title>
+    @*  <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebManageEmployee.styles.css" asp-append-version="true" /> *@
+
+
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="~/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="~/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="~/plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="~/plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+
+
+    <style>
+
+
+        /* ถ้าคุณต้องการให้เนื้อหาขยายตัวขึ้นเมื่อ Navbar ถูกตรงกับจอ ให้เพิ่ม padding-top เท่ากับความสูงของ Navbar */
+       html{
+           background-color:#f4f6f9;
+       }
+        .content-wrapper {
+            padding-top:56px;
+        }
+
+        .logout {
+            text-decoration: none; /* ลบเส้นใต้ */
+            font-weight:bold;
+            color: #E74C3C;
+        }
+
+            .logout:hover {
+                color: white;
+            }
+     
+       
+    </style>
+
+</head>
+
+@functions {
+        public string IsActive(string controller, string action)
+        {
+            string currentController = ViewContext.RouteData.Values["Controller"].ToString();
+            string currentAction = ViewContext.RouteData.Values["Action"].ToString();
+
+            if ((currentController == controller) && (currentAction == action))
+            {
+                return "active";
+            }
+
+            return "";
+        }
+        public string SumPage()
+        {
+            return string.Join(" ", IsActive("Home", "Summary"), 
+            IsActive("Home", "InsertEmployee"),
+            IsActive("Home", "UpdateEmployee"),
+            IsActive("Recycle", "RecycleEmployee"),
+            IsActive("Recycle", "UpdateRecycleEmployee"));
+        }
+        public string DepPage()
+        {
+            return string.Join(" ", IsActive("Home", "ManageDepartment"),
+            IsActive("Home", "InsertDepartment"),
+            IsActive("Home", "UpdateDepartment"),
+            IsActive("Recycle", "RecycleDepartment"),
+            IsActive("Recycle", "UpdateRecycleDepartment"));
+        }
+        public string PosPage()
+        {
+            return string.Join(" ", IsActive("Home", "ManagePosition"),
+            IsActive("Home", "InsertPosition"),
+            IsActive("Home", "UpdatePosition"),
+            IsActive("Recycle", "RecyclePosition"),
+            IsActive("Recycle", "UpdateRecyclePosition"));
+        }
+        public string ProPage()
+        {
+            return IsActive("Home", "Profile");
+
+        }
+}
+
+
+
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+
+        <header>
+            <div class="d-none">
+                @Context.Request.Cookies.TryGetValue("LoggedInUsername_Hr", out string? LoggedInUsername_Hr);
+                @Context.Request.Cookies.TryGetValue("LoggedInFullName_Hr", out string? LoggedInFullName_Hr);
+                @Context.Request.Cookies.TryGetValue("LoggedInEmp_Id_Hr", out string? LoggedInEmp_Id_Hr);
+
+            </div>
+
+
+            <!-- Navbar -->
+            <nav class="main-header navbar navbar-expand  navbar-dark fixed-top">
+                <!-- Left navbar links -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto me-2">
+                    <a asp-controller="Logout" asp-action="Logout" onclick="logout()" class="logout"  >
+                        <i class=" fa-solid fa-right-from-bracket "></i>
+                        Logout
+                    </a>
+                </ul>
+
+            </nav>
+        </header>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a asp-controller="Home" asp-action="Summary" class="brand-link text-decoration-none">
+                <img src="~/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light font-weight-bold">ManageEmployee</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="~/dist/img/avatar4.png" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info ">
+                        <a href="#" class="d-block  text-warning text-decoration-none">
+                            @if (!string.IsNullOrEmpty(LoggedInUsername_Hr))
+                            {
+                                <span class="hidden-xs">
+                                    @LoggedInUsername_Hr
+                                </span>
+                              @*   <span class="hidden-xs">
+                                    @LoggedInFullName_Hr
+                                </span> *@
+                            }
+                        </a>
+                    </div>
+                </div>
+
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column " data-widget="treeview" role="menu" data-accordion="false">
+
+                        <li class="nav-item ">
+                            <a asp-controller="Home" asp-action="Summary" class="nav-link @SumPage()">
+                                <i class="nav-icon fa-solid fa-user-tie  ml-1"></i>
+                                <p > Employee </p>
+                            </a>
+                        </li>
+                                <li class="nav-item">
+                            <a asp-controller="Home" asp-action="ManageDepartment" class="nav-link  @DepPage()">
+                                <i class="fa-solid fa-building nav-icon ml-1"></i>
+                                        <p>Department</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                            <a asp-controller="Home" asp-action="ManagePosition" class="nav-link  @PosPage()">
+                                <i class="nav-icon fa-solid fa-users-between-lines  ml-1"></i>
+                                        <p>Position</p>
+                                    </a>
+                                </li>
+                       
+                        @if(@LoggedInEmp_Id_Hr != "0")
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Home" asp-action="Profile" asp-route-id="@LoggedInEmp_Id_Hr" class="nav-link  @ProPage()">
+                                    <i class="fa-solid fa-user nav-icon  ml-1"></i>
+                                    <p> Profile </p>
+                                </a>
+                            </li>
+                        }
+                       
+                    </ul>
+                </nav>
+            </div>
+
+        </aside>
+
+    </div>
+    <!-- ./wrapper -->
+
+    <div class="content-wrapper" >
+        <!-- Content Header (Page header) -->
+
+
+        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+
+        @RenderBody()
+       
+
+        <script>
+            function logout() {
+                // ทำลายคุกกี้โดยกำหนดวันหมดอายุให้มีค่าน้อยกว่าวันปัจจุบัน
+                document.cookie = "LoggedInUsername_login=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = "LoggedInLog_Id_login=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+                // หรือหากคุณต้องการให้กลับไปยังหน้า login หลังจากทำการล็อกเอาท์
+                window.location.href = "/Login/Login"; // กำหนด URL ของหน้า Login ที่คุณต้องการให้กลับไป
+            }
+        </script>
+
+
+    </div>
+    <!-- ./wrapper -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    @*    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script> *@
+    @await RenderSectionAsync("Scripts", required: false)
+
+
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 -->
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="~/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="~/plugins/moment/moment.min.js"></script>
+    <script src="~/plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- date-range-picker -->
+    <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="~/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="~/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Bootstrap Switch -->
+    <script src="~/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="~/plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="~/plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.min.js"></script>
+</body>
+</html>

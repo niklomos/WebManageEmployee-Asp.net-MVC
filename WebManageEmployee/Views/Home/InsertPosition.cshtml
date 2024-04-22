@@ -1,0 +1,141 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="container pt-3">
+    <form asp-controller="Home" asp-action="InsertPositionToDB" method="POST">
+        <div class="card ">
+            <div class="card-header " style="background-color:#2C3E50 ;">
+                <h2 class="text-center  text-light">Insert Position</h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 ">
+                    <label for="PosName" class="form-label">Position<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="PosName" name="PosName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="pos_id" class="form-label">Department<span class="text-danger">*</span></label>
+                    <select class="form-control select2bs4" id="DepId" name="DepId" style="width: 100%;" required>
+                        <option value="">Select a department...</option>
+                        @foreach (var item in Model)
+                        {
+                            <option value="@item.DepId">@item.DepName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="PosPermissionsManage" name="PosPermissionsManage" value="1" >
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Manager </label>
+                </div>
+                <div class="mb-3 d-none">
+                    <label for="PosStatus" class="form-label">PosStatus</label>
+                    <input type="text" class="form-control" id="PosStatus" name="PosStatus" value="1">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+@* Start ajax get message from method  *@
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                url: form.attr('action'),
+                method: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        $('button[type="submit"]').prop('disabled', true);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '@Url.Action("ManagePosition", "Home")';
+                            } else {
+                                window.location.href = '@Url.Action("ManagePosition", "Home")';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End ajax get message from method  *@
+
+
+@* Start check PosName in Database  *@
+<script>
+    $(document).ready(function () {
+        $('#PosName').on('change', function () {
+            var pos_name = $(this).val(); // รับข้อมูล username จาก input field
+            $.ajax({
+                url: '@Url.Action("CheckPosNameExists", "Home")', // URL ของ Action ใน Controller
+                method: 'POST',
+                data: { pos_name: pos_name },
+                success: function (response) {
+                    if (response.pos_name_exists) {
+                        // แสดง SweetAlert ถ้า username ซ้ำ
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Position exists',
+                            text: 'This Position is already in use. Please choose another one.'
+                        }).then(function () {
+                            $('#PosName').val(''); // เคลียร์ค่าในช่อง username
+                        });
+                    }
+                },
+                error: function () {
+                    // แสดง SweetAlert ถ้าเกิดข้อผิดพลาด
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End check PosName in Database  *@
+
+<script>
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+
+    })
+
+</script>

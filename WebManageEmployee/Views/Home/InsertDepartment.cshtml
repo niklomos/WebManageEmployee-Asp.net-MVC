@@ -1,0 +1,110 @@
+﻿
+<div class="container pt-3">
+    <dive class="card" >
+    <form asp-controller="Home" asp-action="InsertDepartmentToDB" method="POST">
+        <div class="card-header " style="background-color:#2C3E50 ;">
+            <h2 class="text-center  text-light">Insert Department</h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="emp_name" class="form-label">Department Name<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="DepName" name="DepName" required>
+                </div>
+                <div class="mb-3 d-none">
+                    <label for="DepStatus" class="form-label">DepStatus</label>
+                    <input type="text" class="form-control" id="DepStatus" name="DepStatus" value="1">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+    </form>
+</div>
+
+
+
+<!--Script-->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@* Start ajax get message from method  *@
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                url: form.attr('action'),
+                method: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        $('button[type="submit"]').prop('disabled', true);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '@Url.Action("ManageDepartment", "Home")';
+                            } else {
+                                window.location.href = '@Url.Action("ManageDepartment", "Home")';
+
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End ajax get message from method  *@
+
+
+@* Start check DepName in Database  *@
+<script>
+    $(document).ready(function () {
+        $('#DepName').on('change', function () {
+            var dep_name = $(this).val(); // รับข้อมูล username จาก input field
+            $.ajax({
+                url: '@Url.Action("CheckDepNameExists", "Home")', // URL ของ Action ใน Controller
+                method: 'POST',
+                data: { dep_name: dep_name },
+                success: function (response) {
+                    if (response.dep_name_exists) {
+                        // แสดง SweetAlert ถ้า username ซ้ำ
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Department exists',
+                            text: 'This Department is already in use. Please choose another one.'
+                        }).then(function () {
+                            $('#DepName').val(''); // เคลียร์ค่าในช่อง username
+                        });
+                    }
+                },
+                error: function () {
+                    // แสดง SweetAlert ถ้าเกิดข้อผิดพลาด
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End check DepName in Database  *@

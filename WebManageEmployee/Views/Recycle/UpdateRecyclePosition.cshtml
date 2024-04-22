@@ -1,0 +1,222 @@
+﻿@model DepartmentModel
+
+<div class="container pt-3">
+    <form asp-controller="Recycle" asp-action="UpdatePosInDB" method="POST">
+        <div class="card">
+            <div class="card-header " style="background-color:#2C3E50 ;">
+                <h2 class="text-center  text-light">Recycle Position</h2>
+            </div>
+            <div class="card-body ">
+                <div class="mb-3 d-none">
+                    <input type="text" class="form-control" id="PosId" name="PosId" value="@Model.Position.PosId" readonly>
+                </div>
+                <div class="mb-3 ">
+                    <input type="text" class="form-control" id="PosName" name="PosName" value="@Model.Position.PosName" readonly>
+                </div>  
+                <div class="mb-3 ">
+                    <input type="text" class="form-control" id="DepName" name="DepName" value="@Model.Position.DepName" readonly>
+                </div>
+               @*  <div class="mb-3">
+                    <label for="dep_id" class="form-label">Department</label>
+                    <select class="form-control" id="dep_id" name="DepId" required>
+                        @foreach (var item in Model.Departments)
+                        {
+                            <option id="dep_id" value="@item.DepId">@item.DepName</option>
+                        }
+                    </select>
+                </div> *@
+               
+
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="PosStatus" name="PosStatus" value="1">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Restore</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!--Script-->
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+@* Start Check PosIid in <Select> *@
+<script>
+    // หา element select โดยใช้ id
+    var selectElement = document.getElementById('dep_id');
+    // ค่า pos_id ของ Employee
+    var posDepId = @Model.Position.DepId;
+
+    // วนลูปผ่านตัวเลือกทั้งหมดใน select
+    for (var i = 0; i < selectElement.options.length; i++) {
+        // ตรวจสอบว่า pos_id ของตัวเลือกตรงกับ pos_id ของ Employee หรือไม่
+        if (selectElement.options[i].value == posDepId) {
+            // กำหนด selected attribute ให้กับตัวเลือกที่ตรงกัน
+            selectElement.options[i].selected = true;
+            // หยุดการวนลูปหากเจอการตรงค่า
+            break;
+        }
+    }
+</script>
+@* End Check PosIid in <Select> *@
+
+@* Start check active before updat  &&  ajax get message from method  *@
+<script>
+    $(document).ready(function () {
+        // ตัวแปรเพื่อตรวจสอบว่ามีการแก้ไขข้อมูลหรือไม่
+        var isModified = false;
+
+        // ตัวฟังก์ชันสำหรับตรวจจับการเปลี่ยนแปลงใน input fields
+        $('form :input').on('input', function () {
+            isModified = true;
+        });
+
+        // เมื่อฟอร์มถูกส่ง
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+
+            // ตรวจสอบว่ามีการแก้ไขข้อมูลหรือไม่
+            if (!isModified) {
+                // ถ้าไม่มีการแก้ไข แสดงออลเลิร์ท
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'No changes detected. Please make some changes before updating.'
+                });
+                return; // ไม่อนุญาตให้ฟอร์มถูกส่ง
+            }
+
+            $.ajax({
+                url: form.attr('action'),
+                method: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '@Url.Action("RecyclePosition", "Recycle")' + '?page=' + '@Model.CurrentPage' + '&searchQuery=' + decodeURIComponent('@ViewBag.SearchQuery');
+
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End check active before updat  &&  ajax get message from method  *@
+
+
+
+@* Start check checked in checkbox  *@
+<script>
+    // เมื่อ checkbox ถูกเปิด/ปิด
+    $('#PosPermissionsManage').change(function () {
+        // ตรวจสอบสถานะของ checkbox
+        if ($(this).is(':checked')) {
+            // ถ้า checkbox ถูกเลือก กำหนดค่าให้เป็น 1
+            $(this).val('1');
+        } else {
+            // ถ้า checkbox ไม่ถูกเลือก กำหนดค่าให้เป็น 0
+            $(this).val('0');
+        }
+    });
+</script>
+@* End check checked in checkbox  *@
+
+
+@* Start sweetalert choose yes or no allow position  *@
+<script>
+    // ฟังก์ชันที่ถูกเรียกเมื่อมีการเปลี่ยนแปลงใน checkbox
+    function confirmAllowPosition() {
+        // ตรวจสอบว่า checkbox ถูกเลือกหรือไม่
+        var checkBox = document.getElementById("PosPermissionsManage");
+        if (checkBox.checked) {
+            // แสดง SweetAlert แทน confirm
+            Swal.fire({
+                title: 'Do you want to allow position ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'yes, allowed',
+                cancelButtonText: 'cancel'
+            }).then((result) => {
+                // ตรวจสอบผลลัพธ์ที่ผู้ใช้เลือก
+                if (result.isConfirmed) {
+                    // กรณีผู้ใช้เลือกตกลง
+                    Swal.fire('Position will be allowed ', '', 'success');
+
+                    // ทำการลบข้อมูลพนักงานที่นี่
+                } else {
+                    // กรณีผู้ใช้เลือกยกเลิก
+                    Swal.fire('Position allowed is canceled', '', 'info');
+                    // ไม่มีการลบข้อมูลที่นี่
+                    // สามารถเพิ่มการกระทำเพิ่มเติมที่นี่เพื่อปรับปรุง
+                    checkBox.checked = false;
+                }
+            });
+        }
+    }
+</script>
+@* End sweetalert choose yes or no allow position  *@
+
+
+@* Start Check PosName in DB  *@
+<script>
+    $(document).ready(function () {
+        $('#PosName').on('change', function () {
+            var pos_name = $(this).val(); // รับข้อมูล username จาก input field
+            $.ajax({
+                url: '@Url.Action("CheckPosNameExists", "Home")', // URL ของ Action ใน Controller
+                method: 'POST',
+                data: { pos_name: pos_name },
+                success: function (response) {
+                    if (response.pos_name_exists) {
+                        // แสดง SweetAlert ถ้า username ซ้ำ
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Position exists',
+                            text: 'This Position is already in use. Please choose another one.'
+                        }).then(function () {
+                            $('#PosName').val('@Model.Position.PosName'); // เคลียร์ค่าในช่อง username
+                        });
+                    }
+                },
+                error: function () {
+                    // แสดง SweetAlert ถ้าเกิดข้อผิดพลาด
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@* End Check PosName in DB  *@
+

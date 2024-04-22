@@ -1,0 +1,8 @@
+﻿@model IEnumerable<District>
+
+<option >----District----</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.DisId">@item.DName</option>
+}
