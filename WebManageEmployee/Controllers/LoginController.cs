@@ -26,10 +26,45 @@ namespace WebManageEmployee.Controllers
         }
         public IActionResult Login()
         {
-            if (TempData.ContainsKey("SessionError"))
+            try
             {
-                ViewData["SessionError"] = TempData["SessionError"].ToString();
+
+                if (Request.Cookies.TryGetValue("RememberMeUsername", out string rememberMeValue))
+                {
+                    ViewBag.RememberMeUsername = rememberMeValue;
+                }
+                if (Request.Cookies.TryGetValue("RememberMePassword", out string rememberMeValue2))
+                {
+                    ViewBag.RememberMePassword = rememberMeValue2;
+                }
+
+
+                if (TempData.ContainsKey("SessionError"))
+                {
+                    ViewData["SessionError"] = TempData["SessionError"].ToString();
+                }
+
+                if (ViewBag.RememberMeUsername != null)
+                {
+                    var session = _contextAccessor.HttpContext.Session;
+                    session.SetString("LoggedInUsername_Hr", rememberMeValue);
+                    session.SetString("LoggedInEmp_Id_Hr", Request.Cookies["EmpIdCookie"]);
+                }
+               
             }
+            catch (Exception ex)
+            {
+                Response.Cookies.Delete("RememberMeUsername");
+                Response.Cookies.Delete("RememberMePassword");
+                Response.Cookies.Delete("EmpIdCookie");
+                Response.Cookies.Delete("EmpNameCookie");
+                _contextAccessor.HttpContext.Session.Clear();
+                TempData["CookieNotFoundError"] = "Cookie are not found";
+                return RedirectToAction("Login", "Login");
+
+
+            }
+
             return View();
         }
 
@@ -45,9 +80,9 @@ namespace WebManageEmployee.Controllers
                     con.Open();
 
                     string sqlquery = "SELECT  l.*,a.*,p.*,e.* FROM  tb_login AS l " +
-                                      " JOIN tb_access AS a ON a.log_id = l.log_id "+
-                                      " JOIN tb_program AS p ON a.pg_id = p.pg_id "+
-                                      " LEFT JOIN tb_employee AS e ON e.emp_id = l.emp_id "+
+                                      " JOIN tb_access AS a ON a.log_id = l.log_id " +
+                                      " JOIN tb_program AS p ON a.pg_id = p.pg_id " +
+                                      " LEFT JOIN tb_employee AS e ON e.emp_id = l.emp_id " +
                                      " WHERE  a.acc_status = '1' AND  l.Username = @Username AND l.Password = @Password AND a.pg_id = '2'  ";
 
                     var cmd = new MySqlCommand(sqlquery.ToString(), con);
@@ -61,6 +96,31 @@ namespace WebManageEmployee.Controllers
                     //if (reader.HasRows)
                     if (reader.Read())
                     {
+                        if (login.RememberMe != null)
+                        {
+                            Response.Cookies.Append("RememberMeUsername", $"{login.Username}", new
+                                CookieOptions
+                            {
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                HttpOnly = true,
+                                Secure = true,
+                                SameSite = SameSiteMode.None
+                            });
+
+
+                            Response.Cookies.Append("RememberMePassword", $"{login.Password}", new
+                                CookieOptions
+                            {
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                HttpOnly = true,
+                                Secure = true,
+                                SameSite = SameSiteMode.None
+                            });
+
+
+
+
+                        }
 
                         var session = _contextAccessor.HttpContext.Session;
                         session.SetString("LoggedInFullName_Hr", reader["emp_name"].ToString());
@@ -72,6 +132,15 @@ namespace WebManageEmployee.Controllers
 
                         if (login.EmpId != null)
                         {
+                            Response.Cookies.Append("EmpIdCookie", $"{reader["emp_id"]}", new
+                              CookieOptions
+                            {
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                HttpOnly = true,
+                                Secure = true,
+                                SameSite = SameSiteMode.None
+                            });
+
                             session.SetString("LoggedInEmp_Id_Hr", reader["emp_id"].ToString());
 
                             //HttpContext.Response.Cookies.Append("LoggedInEmp_Id_Hr", Convert.ToInt32(reader["emp_id"]).ToString());
@@ -93,6 +162,7 @@ namespace WebManageEmployee.Controllers
             catch (Exception ex)
             {
                 // จัดการข้อผิดพลาด
+
                 _logger.LogError(ex, "Error during login");
                 ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
                 return View();
@@ -101,7 +171,8 @@ namespace WebManageEmployee.Controllers
 
 
 
-       
+
+
 
 
 

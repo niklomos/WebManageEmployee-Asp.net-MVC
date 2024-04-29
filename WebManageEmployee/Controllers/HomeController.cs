@@ -16,7 +16,6 @@ namespace WebManageEmployee.Controllers
 
 
     [CheckSessionFilter]
-
     public class HomeController : Controller
     {
 
@@ -52,8 +51,6 @@ namespace WebManageEmployee.Controllers
 
         public IActionResult Summary(string searchQuery, int page = 1)
         {
-
-            
                 try
                 {
 
@@ -424,7 +421,7 @@ namespace WebManageEmployee.Controllers
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
-                    string query = "SELECT Dep_id, dep_name FROM tb_department";
+                    string query = "SELECT Dep_id, dep_name FROM tb_department WHERE dep_status != '0' ";
                     MySqlCommand command = new MySqlCommand(query, connection);
 
                     connection.Open();
@@ -502,7 +499,7 @@ namespace WebManageEmployee.Controllers
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
-                    string query = "SELECT * FROM tb_position";
+                    string query = "SELECT * FROM tb_position WHERE pos_status != '0' ";
                     MySqlCommand command = new MySqlCommand(query, connection);
 
                     connection.Open();

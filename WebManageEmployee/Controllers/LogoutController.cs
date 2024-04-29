@@ -24,6 +24,11 @@ namespace WebManageEmployee.Controllers
                 // ลบ session ทั้งหมด
                 _contextAccessor.HttpContext.Session.Clear();
 
+                Response.Cookies.Delete("RememberMeUsername");
+                Response.Cookies.Delete("RememberMePassword");
+                Response.Cookies.Delete("EmpIdCookie");
+                Response.Cookies.Delete("EmpNameCookie");
+
                 // Redirect กลับไปยังหน้า login
                 return RedirectToAction("Login", "Login");
             }
